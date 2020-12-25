@@ -17,10 +17,10 @@ type myStruct struct {
 
 var mycmd = &cobra.Command{
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		// Bind all args to viper keys using prefix-<arg> and env vars PREFIX_<upcased arg>.
-		// In this case a viper registered config with `prefix-foo-arg` or an env variable of `PREFIX_FOO_ARG` will be used 
-		// assuming `--foo-arg` is not specified.
 		// When an arg is not set on the CLI, the arg will get set to the viper lookup value (using the global viper instance).
+		// Bind all args to viper keys using prefix-<arg> and env vars PREFIX_<upcased arg>.
+		// For example, in this case a viper registered config with `prefix-foo-arg` or an env variable of `PREFIX_FOO_ARG` will be used 
+		// assuming `--foo-arg` is not specified on the CLI.
 		return cliconfig.BindViperDefaults(cmd, "prefix")
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
