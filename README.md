@@ -11,7 +11,7 @@ type myStruct struct {
 	// By default all args are required to be set, either by the CLI or viper config when binding to viper (see below)
 	SomeArg string `arg:"foo-arg" short:"an" desc:"does fooing stuff"`
 	// Optional args
-	Optional string `arg:"foo-arg" required:"false"`
+	Optional string `arg:"some-optional-arg" required:"false"`
 
 }
 
