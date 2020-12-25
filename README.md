@@ -8,13 +8,19 @@ import(
 )
 
 type myStruct struct {
-	SomeArg string `arg:"foo-arg" short:"an" required:"false" desc:"does fooing stuff"`
+	// By default all args are required to be set, either by the CLI or viper config when binding to viper (see below)
+	SomeArg string `arg:"foo-arg" short:"an" desc:"does fooing stuff"`
+	// Optional args
+	Optional string `arg:"foo-arg" required:"false"`
+
 }
 
 var mycmd = &cobra.Command{
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// Bind all args to viper keys using prefix-<arg> and env vars PREFIX_<upcased arg>.
-		// When an arg is not set on CLI, the arg will get set to the viper lookup value (using the global viper instance).
+		// In this case a viper registered config with `prefix-foo-arg` or an env variable of `PREFIX_FOO_ARG` will be used 
+		// assuming `--foo-arg` is not specified.
+		// When an arg is not set on the CLI, the arg will get set to the viper lookup value (using the global viper instance).
 		return cliconfig.BindViperDefaults(cmd, "prefix")
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
