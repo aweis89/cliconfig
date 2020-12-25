@@ -11,9 +11,11 @@ type myStruct struct {
 	SomeArg string `arg:"foo-arg" short:"an" required:"false" desc:"does fooing stuff"`
 }
 
-&cobra.Command{
+var mycmd = &cobra.Command{
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		return cliconfig.BindViperDefaults(cmd, "git")
+		// Bind all args to viper keys using prefix-<arg> and env vars PREFIX_<upcased arg>.
+		// When an arg is not set on CLI, the arg will get set to the viper lookup value (using the global viper instance).
+		return cliconfig.BindViperDefaults(cmd, "prefix")
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ms := myStruct{}
@@ -23,5 +25,10 @@ type myStruct struct {
 		fmt.Printf("%+v", ms)
 		return nil
 	},
+}
+
+func init() {
+	rootCmd.AddCommand(mycmd)
+	cliconfig.SetFlags(gmc, myStruct{})
 }
 ```
