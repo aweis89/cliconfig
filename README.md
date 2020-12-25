@@ -2,17 +2,25 @@
 Combines Viper and Cobra libraries for flexible configurable values.
 
 ```go
+import(
+	"github.com/aweis89/viper/cliconfig"
+	"github.com/spf13/cobra"
+)
+
+type myStruct struct {
+	SomeArg string `arg:"foo-arg" short:"an" required:"false" desc:"does fooing stuff"`
+}
+
 &cobra.Command{
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return cliconfig.BindViperDefaults(cmd, "git")
-    },
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		log.Info().Msg("Submitting git modification")
-		gmc := gitModifyConfig{}
-		if err := cliconfig.Populate(cmd, &gmc); err != nil {
+		ms := myStruct{}
+		if err := cliconfig.Populate(cmd, &ms); err != nil {
 			return err
 		}
-		fmt.Printf("%+v", gmc)
+		fmt.Printf("%+v", ms)
 		return nil
 	},
 }
