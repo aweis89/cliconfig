@@ -9,12 +9,12 @@ import(
 
 type myStruct struct {
 	// The arg tag is used as the CLI name and Viper lookup key when binding to viper, see below.
-	SomeArg  string `arg:"foo-arg" short:"an" desc:"does fooing stuff"`
+	SomeArg  string   `arg:"foo-arg" short:"an" desc:"does fooing stuff"`
 	// By default all args are required to be set, either by the CLI or viper config when binding to viper
-	Optional string `arg:"some-optional-arg" required:"false"`
+	Optional string   `arg:"some-optional-arg" required:"false"`
 	Slice    []string `arg:"my-slice"`
-	Bool     bool `arg:"my-bool"`
-	Int      int `arg:"my-int"`
+	Bool     bool     `arg:"my-bool"`
+	Int      int      `arg:"my-int"`
 
 }
 
