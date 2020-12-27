@@ -9,17 +9,17 @@ import (
 )
 
 var (
-	StructPtrErr error = errors.New("value is not a struct pointer")
+	NotSettableErr error = errors.New("ptr value is not a settable struct pointer")
 )
 
 // Populate populates structs values
 func Populate(cmd *cobra.Command, ptr interface{}) error {
 	valueOf := reflect.ValueOf(ptr)
-	if valueOf.Kind() != reflect.Ptr {
-		return StructPtrErr
-	}
 	indirect := reflect.Indirect(valueOf)
 	t := indirect.Type()
+	if !indirect.CanSet() || valueOf.Kind() != reflect.Ptr || indirect.Kind() != reflect.Struct {
+		return NotSettableErr
+	}
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		arg := f.Tag.Get("arg")
