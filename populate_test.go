@@ -39,6 +39,7 @@ func TestPopulate(t *testing.T) {
 	cmd.SetArgs(cliArgs)
 
 	ts := typesStruct{}
+	// errTest(t, SetFlags(&cmd, &ts))
 	errTest(t, SetFlags(&cmd, ts))
 	errTest(t, cmd.Execute())
 }
