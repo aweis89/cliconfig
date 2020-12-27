@@ -13,7 +13,7 @@ import (
 
 // SetFlags registers flags from struct tags.
 // Example: field `arg:"flag-name" required:"false" desc:"description" short:"fm"`
-func SetFlags(cmd *cobra.Command, str interface{}) error {
+func SetFlags(cmd *cobra.Command, str interface{}) (err error) {
 	t := reflect.TypeOf(str)
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
@@ -37,12 +37,17 @@ func SetFlags(cmd *cobra.Command, str interface{}) error {
 			defArr := strings.Split(def, ",")
 			cmd.Flags().StringArrayP(name, short, defArr, desc)
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			defInt, err := strconv.Atoi(def)
-			if err != nil {
-				return err
+			fmt.Println("got int", name)
+			defInt := 0
+			if def != "" {
+				defInt, err = strconv.Atoi(def)
+				if err != nil {
+					return err
+				}
 			}
 			cmd.Flags().IntP(name, short, defInt, desc)
 		default:
+			fmt.Println("Skipping SetFlags for", f.Type.Kind().String())
 			continue
 		}
 		if required {
