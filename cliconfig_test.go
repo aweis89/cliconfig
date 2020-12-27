@@ -41,8 +41,10 @@ func TestPopulate(t *testing.T) {
 	flags := cmd.Flags()
 	errTest(t, SetFlags(flags, ts))
 	errTest(t, cmd.Execute())
-	// TODO add test case for pointer struct:
-	// errTest(t, SetFlags(&cmd, &ts))
+	strErr := SetFlags(flags, "not struct pointer")
+	ensureBool(t, strErr != nil, "expecting error from SetFlags args")
+	strErr = Populate(flags, "not struct pointer")
+	ensureBool(t, strErr != nil, "expecting error from Populate")
 }
 
 func errTest(t *testing.T, err error) {
