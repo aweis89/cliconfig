@@ -2,6 +2,7 @@ package cliconfig
 
 import (
 	"fmt"
+	"runtime/debug"
 	"testing"
 
 	"github.com/spf13/cobra"
@@ -19,17 +20,13 @@ func TestPopulate(t *testing.T) {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Println("Executing command..")
 			ts := typesStruct{}
-			reportErr(t, Populate(cmd, &ts))
-			fmt.Printf("%+v", ts)
-			// setBool, err := cmd.Flags().GetBool("bool")
-			// reportErr(t, err)
+			errTest(t, Populate(cmd, &ts))
+			fmt.Printf("got struct: %+v\n", ts)
 			ensureBool(t, ts.Bool == true, "struct bool field")
-
-			//var strarg string
-			//strarg, err = cmd.Flags().GetString("string")
-			// reportErr(t, err)
 			ensureBool(t, ts.String == "string-cli", "string field not set correctly")
-
+			ensureBool(t, len(ts.Slice) == 2, "struct slice incorrect size")
+			ensureBool(t, ts.Slice[0] == "slice-cli-a", "incorrect slice args in struct")
+			ensureBool(t, ts.Slice[1] == "slice-cli-b", "incorrect slice args in struct")
 			return nil
 		},
 	}
@@ -52,17 +49,17 @@ func TestPopulate(t *testing.T) {
 func errTest(t *testing.T, err error) {
 	if err != nil {
 		t.Error(err)
+		if testing.Verbose() {
+			debug.PrintStack()
+		}
 	}
 }
 
 func ensureBool(t *testing.T, test bool, subject string) {
 	if !test {
 		t.Errorf("failed equality test regarding %s\n", subject)
-	}
-}
-
-func reportErr(t *testing.T, err error) {
-	if err != nil {
-		t.Error(err)
+		if testing.Verbose() {
+			debug.PrintStack()
+		}
 	}
 }
