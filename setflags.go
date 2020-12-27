@@ -1,6 +1,7 @@
 package cliconfig
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -11,10 +12,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-// SetFlags registers flags from struct tags.
-// Example: field `arg:"flag-name" required:"false" desc:"description" short:"fm"`
+// SetFlags registers flags from struct tags using `arg:"name"`
+// The str arg can be either a struct or a pointer to a struct
 func SetFlags(cmd *cobra.Command, str interface{}) (err error) {
-	t := reflect.TypeOf(str)
+	// incase str is a pointer to struct, get indirect
+	val := reflect.Indirect(reflect.ValueOf(str))
+	if val.Kind() != reflect.Struct {
+		return errors.New("str must be a struct")
+	}
+	t := val.Type()
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		name := f.Tag.Get("arg")
@@ -37,7 +43,6 @@ func SetFlags(cmd *cobra.Command, str interface{}) (err error) {
 			defArr := strings.Split(def, ",")
 			cmd.Flags().StringArrayP(name, short, defArr, desc)
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			fmt.Println("got int", name)
 			defInt := 0
 			if def != "" {
 				defInt, err = strconv.Atoi(def)
