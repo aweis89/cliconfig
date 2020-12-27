@@ -9,6 +9,7 @@ import (
 )
 
 var (
+	// NotSettableErr is caused by not passing a struct pntr to Populate
 	NotSettableErr error = errors.New("ptr value is not a settable struct pointer")
 )
 

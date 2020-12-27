@@ -16,16 +16,21 @@ func TestPopulate(t *testing.T) {
 	}
 
 	cmd := cobra.Command{
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Println("Executing command..")
 			ts := typesStruct{}
-			Populate(cmd, &ts)
+			reportErr(t, Populate(cmd, &ts))
 			fmt.Printf("%+v", ts)
-			if setBool, err := cmd.Flags().GetBool("bool"); setBool != ts.Bool || err != nil {
-				reportErr(err, t)
-				t.Errorf("expecting %v got %v\n", setBool, ts.Bool)
-			}
+			// setBool, err := cmd.Flags().GetBool("bool")
+			// reportErr(t, err)
+			ensureBool(t, ts.Bool == true, "struct bool field")
 
+			//var strarg string
+			//strarg, err = cmd.Flags().GetString("string")
+			// reportErr(t, err)
+			ensureBool(t, ts.String == "string-cli", "string field not set correctly")
+
+			return nil
 		},
 	}
 
@@ -50,13 +55,13 @@ func errTest(t *testing.T, err error) {
 	}
 }
 
-func boolTest(t *testing.T, pass bool, msg string) {
-	if !pass {
-		t.Error(msg)
+func ensureBool(t *testing.T, test bool, subject string) {
+	if !test {
+		t.Errorf("failed equality test regarding %s\n", subject)
 	}
 }
 
-func reportErr(err error, t *testing.T) {
+func reportErr(t *testing.T, err error) {
 	if err != nil {
 		t.Error(err)
 	}
