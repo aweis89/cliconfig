@@ -5,16 +5,15 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 )
 
 var (
-	// NotSettableErr is caused by not passing a struct pntr to Populate
 	NotSettableErr error = errors.New("ptr value is not a settable struct pointer")
 )
 
 // Populate populates structs values
-func Populate(cmd *cobra.Command, ptr interface{}) error {
+func Populate(fs *flag.FlagSet, ptr interface{}) error {
 	valueOf := reflect.ValueOf(ptr)
 	indirect := reflect.Indirect(valueOf)
 	t := indirect.Type()
@@ -31,29 +30,29 @@ func Populate(cmd *cobra.Command, ptr interface{}) error {
 
 		switch f.Type.Kind() {
 		case reflect.String:
-			val, err := cmd.Flags().GetString(arg)
+			val, err := fs.GetString(arg)
 			if err != nil {
 				return err
 			}
-			reflect.ValueOf(ptr).Elem().Field(i).SetString(val)
+			valueOf.Elem().Field(i).SetString(val)
 		case reflect.Bool:
-			val, err := cmd.Flags().GetBool(arg)
+			val, err := fs.GetBool(arg)
 			if err != nil {
 				return err
 			}
-			reflect.ValueOf(ptr).Elem().Field(i).SetBool(val)
+			valueOf.Elem().Field(i).SetBool(val)
 		case reflect.Slice:
-			vals, err := cmd.Flags().GetStringArray(arg)
+			vals, err := fs.GetStringArray(arg)
 			if err != nil {
 				return err
 			}
-			reflect.ValueOf(ptr).Elem().Field(i).Set(reflect.ValueOf(vals))
+			valueOf.Elem().Field(i).Set(reflect.ValueOf(vals))
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			val, err := cmd.Flags().GetInt(arg)
+			val, err := fs.GetInt(arg)
 			if err != nil {
 				return err
 			}
-			reflect.ValueOf(ptr).Elem().Field(i).SetInt(int64(val))
+			valueOf.Elem().Field(i).SetInt(int64(val))
 		default:
 			continue
 		}

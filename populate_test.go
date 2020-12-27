@@ -9,18 +9,18 @@ import (
 )
 
 func TestPopulate(t *testing.T) {
+	// Test basic types are getting set
 	type typesStruct struct {
 		String string   `arg:"string" desc:"github auth token"`
 		Slice  []string `arg:"slice"`
 		Bool   bool     `arg:"bool"`
 		Int    int      `arg:"integer"`
 	}
-
 	cmd := cobra.Command{
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Println("Executing command..")
 			ts := typesStruct{}
-			errTest(t, Populate(cmd, &ts))
+			errTest(t, Populate(cmd.Flags(), &ts))
 			fmt.Printf("got struct: %+v\n", ts)
 			ensureBool(t, ts.Bool == true, "struct bool field")
 			ensureBool(t, ts.String == "string-cli", "string field not set correctly")
@@ -30,20 +30,19 @@ func TestPopulate(t *testing.T) {
 			return nil
 		},
 	}
-
-	cliArgs := []string{
+	typesTest := []string{
 		"--slice", "slice-cli-a",
 		"--slice", "slice-cli-b",
 		"--string", "string-cli",
 		"--bool", "true",
 		"--integer", "10"}
-
-	cmd.SetArgs(cliArgs)
-
+	cmd.SetArgs(typesTest)
 	ts := typesStruct{}
-	// errTest(t, SetFlags(&cmd, &ts))
-	errTest(t, SetFlags(&cmd, ts))
+	flags := cmd.Flags()
+	errTest(t, SetFlags(flags, ts))
 	errTest(t, cmd.Execute())
+	// TODO add test case for pointer struct:
+	// errTest(t, SetFlags(&cmd, &ts))
 }
 
 func errTest(t *testing.T, err error) {
