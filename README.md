@@ -84,8 +84,7 @@ Flags:
       --my-slice stringArray
       --some-optional-arg string
 
-$ go run ./ --foo-arg cli --my-bool --my-int 10 \
-	--my-slice one --my-slice two
+$ go run ./ --foo-arg cli --my-bool --my-int 10 --my-slice one --my-slice two
 Populated struct: {SomeArg:cli Optional: Slice:[one two] Bool:true Int:10}% 
 ```
 </details>
