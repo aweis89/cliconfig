@@ -2,9 +2,10 @@
 [![codecov](https://codecov.io/gh/aweis89/cliconfig/branch/master/graph/badge.svg)](https://codecov.io/gh/aweis89/cliconfig)
 
 ### cliconfig
-Uses struct field tags to set flags using [pflags](https://github.com/spf13/pflag).
+Uses struct field tags to set flags using github [pflags](https://github.com/spf13/pflags).
 
-#### Example using [cobra](https://github.com/spf13/cobra):
+<details>
+<summary>Example using [cobra](https://github.com/spf13/cobra):</summary>
 ```go
 import(
 	"github.com/aweis89/cliconfig"
@@ -46,5 +47,6 @@ func main() {
 	}
 }
 ```
+</details>
 
 #### Example using [pflags](https://github.com/spf13/pflags):
