@@ -15,7 +15,6 @@ import (
 	"fmt"
 
 	"github.com/aweis89/cliconfig"
-
 	"github.com/spf13/cobra"
 )
 
@@ -45,7 +44,7 @@ func main() {
 			if err := cliconfig.Populate(cmd.Flags(), &ms); err != nil {
 				return err
 			}
-			fmt.Printf("%+v", ms)
+			fmt.Printf("Populated struct: %+v", ms)
 			return nil
 		},
 	}
@@ -59,7 +58,6 @@ func panicIfErr(err error) {
 	}
 }
 ```
-
 ```console
 $ go run ./ --help
 Usage:
@@ -72,5 +70,22 @@ Flags:
       --my-int int
       --my-slice stringArray
       --some-optional-arg string
+
+$ go run ./
+Error: required flag(s) "foo-arg", "my-bool", "my-int", "my-slice" not set
+Usage:
+  testcmd [flags]
+
+Flags:
+  -f, --foo-arg string             does fooing stuff
+  -h, --help                       help for testcmd
+      --my-bool
+      --my-int int
+      --my-slice stringArray
+      --some-optional-arg string
+
+$ go run ./ --foo-arg cli --my-bool --my-int 10 \
+	--my-slice one --my-slice two
+Populated struct: {SomeArg:cli Optional: Slice:[one two] Bool:true Int:10}% 
 ```
 </details>
