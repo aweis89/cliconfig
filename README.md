@@ -5,7 +5,7 @@
 Uses struct field tags to set flags using github [pflags](https://github.com/spf13/pflags).
 
 <details>
-<summary>Example using [cobra](https://github.com/spf13/cobra):</summary>
+<summary>Example using https://github.com/spf13/cobra:</summary>
 
 ```go
 import(
@@ -49,5 +49,3 @@ func main() {
 }
 ```
 </details>
-
-#### Example using [pflags](https://github.com/spf13/pflags):
