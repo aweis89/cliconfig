@@ -1,5 +1,5 @@
 [![Actions Status](https://github.com/aweis89/cliconfig/workflows/build/badge.svg)](https://github.com/aweis89/cliconfig/actions)
-[![codecov](https://codecov.io/gh/aweis89/cliconfig/branch/master/graph/badge.svg)](https://codecov.io/gh/aweis98/cliconfig)
+[![codecov](https://codecov.io/gh/aweis89/cliconfig/branch/master/graph/badge.svg)](https://codecov.io/gh/aweis89/cliconfig)
 
 # cliconfig
 Combines Viper and Cobra libraries for flexible configurable values.
