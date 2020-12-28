@@ -2,7 +2,8 @@
 [![codecov](https://codecov.io/gh/aweis89/cliconfig/branch/master/graph/badge.svg)](https://codecov.io/gh/aweis89/cliconfig)
 
 ### cliconfig
-Uses struct field tags to set flags using github [pflags](https://github.com/spf13/pflags).
+Uses struct field tags to set flags using [pflags](https://github.com/spf13/pflags).
+Can also be set to use Viper as default fallback when cli arg is missing.
 
 <details>
 <summary>Example using https://github.com/spf13/cobra:</summary>
