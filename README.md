@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/aweis89/cliconfig/branch/master/graph/badge.svg)](https://codecov.io/gh/aweis89/cliconfig)
 
 ### cliconfig
-Uses struct field tags to set flags using github [pflags](https://github.com/spf13/pflags).
+Uses struct field tags to set flags using github [pflags](https://github.com/spf13/pflag).
 
 #### Example using [cobra](https://github.com/spf13/cobra):
 ```go
