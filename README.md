@@ -1,3 +1,6 @@
+[![Actions Status](https://github.com/aweis89/cliconfig/workflows/build/badge.svg)](https://github.com/aweis89/cliconfig/actions)
+[![codecov](https://codecov.io/gh/aweis98/cliconfig/branch/master/graph/badge.svg)](https://codecov.io/gh/aweis98/cliconfig)
+
 # cliconfig
 Combines Viper and Cobra libraries for flexible configurable values.
 
@@ -28,7 +31,7 @@ var mycmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ms := myStruct{}
-		if err := cliconfig.Populate(cmd, &ms); err != nil {
+		if err := cliconfig.Populate(cmd.Flags(), &ms); err != nil {
 			return err
 		}
 		fmt.Printf("%+v", ms)
