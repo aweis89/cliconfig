@@ -40,6 +40,10 @@ func main() {
 			return nil
 		},
 	}
+	cliconfig.SetFlags(cmd.Flags(), myStruct{})
+	if err := cmd.Execute(); err != nil {
+		panic(err)
+	}
 }
 ```
 

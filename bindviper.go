@@ -11,6 +11,10 @@ import (
 
 func ViperSetFlags(flags *flag.FlagSet, prefix string, vs ...*viper.Viper) error {
 	var result error
+	// default to global viper instance
+	if len(vs) == 0 {
+		vs = []*viper.Viper{viper.GetViper()}
+	}
 	for _, v := range vs {
 		flags.VisitAll(func(f *pflag.Flag) {
 			key := f.Name
