@@ -6,6 +6,7 @@ Uses struct field tags to set flags using github [pflags](https://github.com/spf
 
 <details>
 <summary>Example using [cobra](https://github.com/spf13/cobra):</summary>
+
 ```go
 import(
 	"github.com/aweis89/cliconfig"
