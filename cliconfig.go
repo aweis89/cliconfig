@@ -21,7 +21,8 @@ func SetFlags(flags *flag.FlagSet, str interface{}) (err error) {
 	// incase str is a pointer to struct, get indirect
 	val := reflect.Indirect(reflect.ValueOf(str))
 	if val.Kind() != reflect.Struct {
-		return newKindError(val.Kind(), []reflect.Kind{reflect.Struct}, "str arg invalid")
+		return newKindError(val.Kind(), []reflect.Kind{reflect.Struct},
+			"str arg invalid")
 	}
 	t := val.Type()
 	for i := 0; i < t.NumField(); i++ {
@@ -36,7 +37,6 @@ func SetFlags(flags *flag.FlagSet, str interface{}) (err error) {
 		def := f.Tag.Get("default")
 		// default to all fields being required
 		required := f.Tag.Get("required") != "false"
-
 		switch f.Type.Kind() {
 		case reflect.String:
 			flags.StringP(name, short, def, desc)
@@ -49,7 +49,8 @@ func SetFlags(flags *flag.FlagSet, str interface{}) (err error) {
 				defArr := strings.Split(def, ",")
 				flags.StringArrayP(name, short, defArr, desc)
 			default:
-				return newKindError(sliceKind, []reflect.Kind{reflect.String}, "struct's type is invalid")
+				return newKindError(sliceKind, []reflect.Kind{reflect.String},
+					"struct's type is invalid")
 			}
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			defInt := 0
@@ -73,8 +74,14 @@ func SetFlags(flags *flag.FlagSet, str interface{}) (err error) {
 	return nil
 }
 
-// Populate populates structs values
-func Populate(fs *flag.FlagSet, ptr interface{}, v ...viper.Viper) error {
+// PopulateWithViper first sets any unset flags to their Viper lookup value before populating fields
+func PopulateWithViper(fs *flag.FlagSet, ptr interface{}, prefix string, vs ...*viper.Viper) error {
+	ViperSetFlags(fs, prefix, vs...)
+	return Populate(fs, ptr)
+}
+
+// Populate populates structs values matching the flags name to the arg tag
+func Populate(fs *flag.FlagSet, ptr interface{}) error {
 	valueOf := reflect.ValueOf(ptr)
 	if valueOf.Kind() != reflect.Ptr {
 		return NotSettableErr
@@ -83,11 +90,7 @@ func Populate(fs *flag.FlagSet, ptr interface{}, v ...viper.Viper) error {
 	if !elem.CanSet() || elem.Kind() != reflect.Struct {
 		return NotSettableErr
 	}
-	// t := indirect.Type()
 	t := elem.Type()
-	if !elem.CanSet() {
-		return NotSettableErr
-	}
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		arg := f.Tag.Get("arg")
