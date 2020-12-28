@@ -43,8 +43,12 @@ func main() {
 			return nil
 		},
 	}
-	cliconfig.SetFlags(cmd.Flags(), myStruct{})
-	if err := cmd.Execute(); err != nil {
+	panicIfErr(cliconfig.SetFlags(cmd.Flags(), myStruct{}))
+	panicIfErr(cmd.Execute())
+}
+
+func panicIfErr(err error) {
+	if err != nil {
 		panic(err)
 	}
 }
