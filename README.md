@@ -1,12 +1,13 @@
 [![Actions Status](https://github.com/aweis89/cliconfig/workflows/build/badge.svg)](https://github.com/aweis89/cliconfig/actions)
 [![codecov](https://codecov.io/gh/aweis89/cliconfig/branch/master/graph/badge.svg)](https://codecov.io/gh/aweis89/cliconfig)
 
-# cliconfig
-Combines Viper and Cobra libraries for flexible configurable values.
+### cliconfig
+Uses struct field tags to set flags using github [pflags](https://github.com/spf13/pflags).
 
+#### Example using [cobra](https://github.com/spf13/cobra):
 ```go
 import(
-	"github.com/aweis89/viper/cliconfig"
+	"github.com/aweis89/cliconfig"
 	"github.com/spf13/cobra"
 )
 
@@ -21,26 +22,25 @@ type myStruct struct {
 
 }
 
-var mycmd = &cobra.Command{
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		// When an arg is not set on the CLI, the arg will get set to the viper lookup value (using the global viper instance).
-		// Bind all args to viper keys using prefix-<arg> and env vars PREFIX_<upcased arg>.
-		// For example, in this case a viper registered config with `prefix-foo-arg` or an env variable of `PREFIX_FOO_ARG` will be used 
-		// assuming `--foo-arg` is not specified on the CLI.
-		return cliconfig.BindViperDefaults(cmd, "prefix")
-	},
-	RunE: func(cmd *cobra.Command, args []string) error {
-		ms := myStruct{}
-		if err := cliconfig.Populate(cmd.Flags(), &ms); err != nil {
-			return err
-		}
-		fmt.Printf("%+v", ms)
-		return nil
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(mycmd)
-	cliconfig.SetFlags(gmc, myStruct{})
+func main() {
+	cmd := &cobra.Command{
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			// When an arg is not set on the CLI, the arg will get set to the viper lookup value (using the global viper instance).
+			// Bind all args to viper keys using prefix-<arg> and env vars PREFIX_<upcased arg>.
+			// For example, in this case a viper registered config with `prefix-foo-arg` or an env variable of `PREFIX_FOO_ARG` will be used 
+			// assuming `--foo-arg` is not specified on the CLI.
+			return cliconfig.ViperSetFlags(cmd.Flags(), "prefix")
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ms := myStruct{}
+			if err := cliconfig.Populate(cmd.Flags(), &ms); err != nil {
+				return err
+			}
+			fmt.Printf("%+v", ms)
+			return nil
+		},
+	}
 }
 ```
+
+#### Example using [pflags](https://github.com/spf13/pflags):
