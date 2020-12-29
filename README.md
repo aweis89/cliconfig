@@ -44,7 +44,7 @@ func main() {
 			if err := cliconfig.Populate(cmd.Flags(), &ms); err != nil {
 				return err
 			}
-			fmt.Printf("Populated struct: %+v", ms)
+			fmt.Printf("Populated struct: %+v\n", ms)
 			return nil
 		},
 	}
@@ -84,8 +84,18 @@ Flags:
       --my-slice stringArray
       --some-optional-arg string
 
-$ go run ./ --foo-arg cli --my-bool --my-int 10 \
-	--my-slice one --my-slice two
-Populated struct: {SomeArg:cli Optional: Slice:[one two] Bool:true Int:10}% 
+$ go run ./ --foo-arg cli --my-bool --my-int 10 --my-slice one --my-slice two
+Populated struct: {SomeArg:cli Optional: Slice:[one two] Bool:true Int:10}
+
+$ echo "prefix-my-int: 88" > config.yaml
+$ cat <<EOF >> ./main.go
+```go
+func init() {
+	viper.SetConfig("config")
+	panicIfErr(viper.ReadInConfig())
+}
+```
+EOF
+
 ```
 </details>
