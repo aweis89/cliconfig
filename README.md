@@ -87,12 +87,24 @@ Flags:
 $ go run ./ --foo-arg cli --my-bool --my-int 10 --my-slice one --my-slice two
 Populated struct: {SomeArg:cli Optional: Slice:[one two] Bool:true Int:10}
 
-$ echo "prefix-my-int: 88" > config.yaml
+# For viper usage, first setup viper
 $ cat <<EOF >> ./main.go
 func init() {
 	viper.SetConfig("config")
 	panicIfErr(viper.ReadInConfig())
 }
 EOF
+
+# Add cli args to config.yaml with prefix specified in PreRunE `ViperSetFlags`
+$ cat <<EOF > config.yaml
+prefix-my-int: 88
+prefix-my-bool: true
+prefix-my-slice:
+- one
+- two
+EOF
+
+$ go run ./
+Populated struct: {SomeArg:cli Optional: Slice:[one two] Bool:true Int:10}
 ```
 </details>
