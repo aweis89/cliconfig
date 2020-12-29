@@ -89,6 +89,7 @@ Populated struct: {SomeArg:cli Optional: Slice:[one two] Bool:true Int:10}
 
 $ echo "prefix-my-int: 88" > config.yaml
 $ cat <<EOF >> ./main.go
+
 ```go
 func init() {
 	viper.SetConfig("config")
