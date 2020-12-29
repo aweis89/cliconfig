@@ -95,6 +95,7 @@ func init() {
 	panicIfErr(viper.ReadInConfig())
 }
 ```
+
 EOF
 
 ```
