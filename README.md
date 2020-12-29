@@ -9,7 +9,7 @@ Can also be set to use Viper as default fallback when cli arg is missing.
 <summary>Example using https://github.com/spf13/cobra:</summary>
 
 ```console
-$ cat <<EOF > main.go
+$ bat main.go
 ```	
 ```go
 package main
