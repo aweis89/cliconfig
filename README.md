@@ -5,7 +5,46 @@ Uses struct field tags to set flags using [pflags](https://github.com/spf13/pfla
 Can also be set to use Viper as default fallback when cli arg is missing.
 
 <details>
-<summary>Example using https://github.com/spf13/cobra:</summary>
+<summary>Example using ![pflags](https://github.com/spf13/pflags):</summary>
+```console
+$ bat main.go
+```	
+```go
+package main
+
+import (
+        "fmt"
+
+        "github.com/aweis89/cliconfig"
+        "github.com/spf13/pflag"
+)
+
+type config struct {
+        Port     int    `arg:"port" short:"p" desc:"sets server port"`
+        Password string `arg:"password" desc:"my super secret password"`
+}
+
+func main() {
+        c := config{}
+        cliconfig.SetFlags(pflag.CommandLine, c)
+        pflag.Parse()
+        cliconfig.Populate(pflag.CommandLine, &c, cliconfig.Opts{})
+        fmt.Printf("Populated struct values from cli with viper fallback: %+v\n", c)
+}
+```	
+```console
+$ go run ./main.go --help
+Usage of /tmp/go-build389349699/b001/exe/basic:
+      --password string   my super secret password
+  -p, --port int          sets server port
+
+$ go run ./main.go --password secret --port 8080
+Populated struct values from cli with viper fallback: {Port:8080 Password:secret}
+```	
+</details>
+
+<details>
+<summary>Example using ![cobra](https://github.com/spf13/cobra):</summary>
 
 ```console
 $ bat main.go
