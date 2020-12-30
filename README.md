@@ -1,5 +1,5 @@
-[![Actions Status](https://github.com/aweis89/cliconfig/workflows/build/badge.svg)](https://github.com/aweis89/cliconfig/actions)
-[![codecov](https://codecov.io/gh/aweis89/cliconfig/branch/main/graph/badge.svg)](https://codecov.io/gh/aweis89/cliconfig)
+![tests](https://github.com/aweis89/cliconfig/workflows/Test/badge.svg?branch=main)
+![codecov](https://codecov.io/gh/aweis89/cliconfig/branch/main/graph/badge.svg)](https://codecov.io/gh/aweis89/cliconfig)
 
 ### cliconfig
 Uses struct field tags to set flags using [pflags](https://github.com/spf13/pflags).
