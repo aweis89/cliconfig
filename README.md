@@ -5,7 +5,8 @@ Uses struct field tags to set flags using [pflags](https://github.com/spf13/pfla
 Can also be set to use Viper as default fallback when cli arg is missing.
 
 <details>
-<summary>Example using ![pflags](https://github.com/spf13/pflags):</summary>
+<summary>Example using [pflags](https://github.com/spf13/pflags):</summary>
+	
 ```console
 $ bat main.go
 ```	
