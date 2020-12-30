@@ -5,7 +5,8 @@ Uses struct field tags to set flags using [pflags](https://github.com/spf13/pfla
 Can also be set to use Viper as default fallback when cli arg is missing.
 
 <details>
-<summary>Example using ![pflags](https://github.com/spf13/pflags):</summary>
+	<summary>Example using <a href="https://github.com/spf13/pflag">pflag</a>:</summary>
+	
 ```console
 $ bat main.go
 ```	
@@ -56,7 +57,7 @@ Populated struct values from cli with viper fallback: {Port:0 Password:env-var}
 </details>
 
 <details>
-<summary>Example using ![cobra](https://github.com/spf13/cobra):</summary>
+<summary>Example using <a href="https://github.com/spf13/cobra">cobra</a>:</summary>
 
 ```console
 $ bat main.go
