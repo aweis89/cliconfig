@@ -61,10 +61,11 @@ func TestPopulate(t *testing.T) {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Println("Executing command..")
 			ts := typesStruct{}
-			errTest(t, Populate(cmd.Flags(), &ts))
+			errTest(t, Populate(cmd.Flags(), &ts, Opts{}))
 			fmt.Printf("got struct: %+v\n", ts)
 			ensureEq(t, ts.Bool, true, "struct bool field")
 			ensureEq(t, ts.String, "string-cli", "string field not set correctly")
+			ensureEq(t, ts.Int, 10, "slice args in struct")
 			ensureEq(t, len(ts.Slice), 2, "struct slice incorrect size")
 			ensureEq(t, ts.Slice[0], "slice-cli-a", "slice args in struct")
 			ensureEq(t, ts.Slice[1], "slice-cli-b", "slice args in struct")
@@ -82,12 +83,12 @@ func TestPopulate(t *testing.T) {
 	errTest(t, cmd.Execute())
 	strErr := SetFlags(flags, "not struct pointer")
 	ensureBool(t, strErr != nil, "expecting error from SetFlags args")
-	strErr = Populate(flags, "not struct pointer")
+	strErr = Populate(flags, "not struct pointer", Opts{})
 	ensureBool(t, strErr != nil, "expecting error from Populate")
 }
 
 func TestPopulateWithViper(t *testing.T) {
-	v := viper.New()
+	v := viper.GetViper()
 	v.SetConfigType("yaml")
 	config := `string: file-arg`
 	v.ReadConfig(bytes.NewBuffer([]byte(config)))
@@ -95,7 +96,7 @@ func TestPopulateWithViper(t *testing.T) {
 		str := typesStruct{}
 		emptyFlagSet := pflag.FlagSet{}
 		SetFlags(&emptyFlagSet, str)
-		PopulateWithViper(&emptyFlagSet, &str, "", v)
+		Populate(&emptyFlagSet, &str, Opts{})
 		ensureEq(t, str.String, "file-arg", "flag value is set from viper config file")
 	})
 	t.Run("use cli override", func(t *testing.T) {
@@ -103,7 +104,7 @@ func TestPopulateWithViper(t *testing.T) {
 		flagSet := pflag.FlagSet{}
 		SetFlags(&flagSet, str)
 		flagSet.Parse([]string{"--string", "cli-arg"})
-		PopulateWithViper(&flagSet, &str, "", v)
+		Populate(&flagSet, &str, Opts{})
 		ensureEq(t, str.String, "cli-arg", "flag value is set from from cli override")
 	})
 }

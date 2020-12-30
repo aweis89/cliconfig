@@ -1,30 +1,52 @@
 package cliconfig
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
-var (
-	NotSettableErr error = errors.New("ptr value is not a settable struct pointer")
-)
+// Opts are options used for mapping viper config keys and env vars to cli flags.
+type Opts struct {
+	// ViperPrefix adds a prefix to viper config key and env var.
+	// Seperated is a - for config value and _ for env var.
+	// No prefix is added when not set.
+	ViperPrefix string
+	// EnvPrefix sets a prefix just for the env lookup,
+	// 	without modifying other lookup sources.
+	// No prefix is added when empty.
+	// When used with ViperPrefix, the EnvPrefix will be prefixed to ViperPrefix.
+	EnvPrefix string
+	// Vipers is a list of viper instances used for config lookup.
+	// The global viper instance is used when not set.
+	Vipers []*viper.Viper
+}
 
-// SetFlags registers flags from struct tags using `arg:"name"`
-// The str arg can be either a struct or a pointer to a struct
+// withDefaults populates Opts with default values
+func (p *Opts) withDefaults() {
+	if len(p.Vipers) == 0 {
+		p.Vipers = []*viper.Viper{viper.GetViper()}
+	}
+}
+
+// SetFlags registers flags from struct tags using `arg:"name"`.
+// The str arg can be either a struct or a pointer to a struct.
+// Must be called before the Populate function is called.
 func SetFlags(flags *flag.FlagSet, str interface{}) (err error) {
 	// incase str is a pointer to struct, get indirect
-	val := reflect.Indirect(reflect.ValueOf(str))
-	if val.Kind() != reflect.Struct {
-		return newKindError(val.Kind(), []reflect.Kind{reflect.Struct},
+	indirect := reflect.Indirect(reflect.ValueOf(str))
+	if indirect.Kind() != reflect.Struct {
+		return newKindError(indirect.Kind(), []reflect.Kind{reflect.Struct},
 			"str arg invalid")
 	}
-	t := val.Type()
+	t := indirect.Type()
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		name := f.Tag.Get("arg")
@@ -37,6 +59,7 @@ func SetFlags(flags *flag.FlagSet, str interface{}) (err error) {
 		def := f.Tag.Get("default")
 		// default to all fields being required
 		required := f.Tag.Get("required") != "false"
+
 		switch f.Type.Kind() {
 		case reflect.String:
 			flags.StringP(name, short, def, desc)
@@ -61,6 +84,8 @@ func SetFlags(flags *flag.FlagSet, str interface{}) (err error) {
 				}
 			}
 			flags.IntP(name, short, defInt, desc)
+		case reflect.Struct:
+			SetFlags(flags, f)
 		default:
 			return newKindError(f.Type.Kind(),
 				[]reflect.Kind{reflect.String, reflect.Bool, reflect.Int, reflect.Slice},
@@ -74,51 +99,54 @@ func SetFlags(flags *flag.FlagSet, str interface{}) (err error) {
 	return nil
 }
 
-// PopulateWithViper first sets any unset flags to their Viper lookup value before populating fields
-func PopulateWithViper(fs *flag.FlagSet, ptr interface{}, prefix string, vs ...*viper.Viper) error {
-	ViperSetFlags(fs, prefix, vs...)
-	return Populate(fs, ptr)
-}
-
-// Populate populates structs values matching the flags name to the arg tag
-func Populate(fs *flag.FlagSet, ptr interface{}) error {
+// Populate populates structs values by using the arg tag to pull values
+// either from the cli, viper or an env var (in that order).
+func Populate(fs *flag.FlagSet, ptr interface{}, opts Opts) error {
+	opts.withDefaults()
+	// Set flags to viper lookup value when not set by on the cli.
+	// This allows validations on the flags to work as expected (e.x. Cobra's MarkFlagRequired).
+	viperSetFlags(fs, opts)
 	valueOf := reflect.ValueOf(ptr)
+	// ensure ptr is a pointer before getting the Elem()
 	if valueOf.Kind() != reflect.Ptr {
-		return NotSettableErr
+		return newKindError(valueOf.Kind(), []reflect.Kind{reflect.Ptr},
+			"ptr must be pointer to struct")
 	}
 	elem := valueOf.Elem()
 	if !elem.CanSet() || elem.Kind() != reflect.Struct {
-		return NotSettableErr
+		return newKindError(valueOf.Kind(), []reflect.Kind{reflect.Struct},
+			"ptr must be pointer to struct")
 	}
 	t := elem.Type()
 	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-		arg := f.Tag.Get("arg")
+		typeField := t.Field(i)
+		elemField := elem.Field(i)
+		arg := typeField.Tag.Get("arg")
 		if arg == "" {
 			continue
 		}
-		switch f.Type.Kind() {
+		switch typeField.Type.Kind() {
 		case reflect.String:
 			val, err := fs.GetString(arg)
 			if err != nil {
 				return err
 			}
-			elem.Field(i).SetString(val)
+			elemField.SetString(val)
 		case reflect.Bool:
 			val, err := fs.GetBool(arg)
 			if err != nil {
 				return err
 			}
-			elem.Field(i).SetBool(val)
+			elemField.SetBool(val)
 		case reflect.Slice:
-			sliceType := f.Type.Elem().Kind()
+			sliceType := typeField.Type.Elem().Kind()
 			switch sliceType {
 			case reflect.String:
 				vals, err := fs.GetStringArray(arg)
 				if err != nil {
 					return err
 				}
-				elem.Field(i).Set(reflect.ValueOf(vals))
+				elemField.Set(reflect.ValueOf(vals))
 			default:
 				return errors.Errorf("slice type of %v is not supported", sliceType)
 			}
@@ -127,10 +155,43 @@ func Populate(fs *flag.FlagSet, ptr interface{}) error {
 			if err != nil {
 				return err
 			}
-			valueOf.Elem().Field(i).SetInt(int64(val))
+			elemField.SetInt(int64(val))
+		case reflect.Struct:
+			Populate(fs, &elemField, opts)
 		default:
-			return errors.Errorf("type of %v is not supported", f.Type.Kind())
+			return errors.Errorf("type of %v is not supported", typeField.Type.Kind())
 		}
 	}
 	return nil
+}
+
+func viperSetFlags(flags *flag.FlagSet, opts Opts) error {
+	var result error
+	for _, v := range opts.Vipers {
+		flags.VisitAll(func(f *pflag.Flag) {
+			key := f.Name
+			if opts.ViperPrefix != "" {
+				key = fmt.Sprintf("%s-%s", opts.ViperPrefix, key)
+			}
+
+			// bind to env var
+			envVar := strings.ToUpper(strings.ReplaceAll(key, "-", "_"))
+			if opts.EnvPrefix != "" {
+				envVar = fmt.Sprintf("%s_%s", opts.EnvPrefix, envVar)
+			}
+			if err := v.BindEnv(key, envVar); err != nil {
+				result = err
+				return
+			}
+			// If flag is not set and viper has config value, set flag to viper's value.
+			if !f.Changed && v.IsSet(key) {
+				val := v.Get(key)
+				if err := flags.Set(f.Name, fmt.Sprintf("%v", val)); err != nil {
+					result = err
+					return
+				}
+			}
+		})
+	}
+	return result
 }
