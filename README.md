@@ -1,6 +1,5 @@
 ![tests](https://github.com/aweis89/cliconfig/workflows/Test/badge.svg?branch=main)
-![codecov](https://codecov.io/gh/aweis89/cliconfig/branch/main/graph/badge.svg)
-
+[![codecov](https://codecov.io/gh/aweis89/cliconfig/branch/main/graph/badge.svg?token=5VPE4QXYWA)](https://codecov.io/gh/aweis89/cliconfig)
 ### cliconfig
 Uses struct field tags to set flags using [pflags](https://github.com/spf13/pflags).
 Can also be set to use Viper as default fallback when cli arg is missing.
