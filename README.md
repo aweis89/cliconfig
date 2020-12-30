@@ -40,6 +40,18 @@ Usage of /tmp/go-build389349699/b001/exe/basic:
 
 $ go run ./main.go --password secret --port 8080
 Populated struct values from cli with viper fallback: {Port:8080 Password:secret}
+$ cat <<EOF >> ./main.go
+func init() {
+        viper.SetConfigName("config")
+        viper.AddConfigPath(".")
+        _ = viper.ReadInConfig()
+}
+EOF
+$ echo "password: viper-config" > config.yaml
+$ go run ./main.go
+Populated struct values from cli with viper fallback: {Port:0 Password:viper-config}
+$ PASSWORD=env-var go run ./main.go
+Populated struct values from cli with viper fallback: {Port:0 Password:env-var}
 ```	
 </details>
 
